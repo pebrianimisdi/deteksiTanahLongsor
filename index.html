@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Pendeteksi Tanah Longsor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f6f8fa;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 20px;
+      width: 350px;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+      color: #0077cc;
+    }
+
+    .data {
+      font-size: 16px;
+      margin: 6px 0;
+    }
+
+    .status {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .status button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      cursor: default;
+      width: 100%;
+      transition: background 0.3s ease;
+    }
+
+    .normal {
+      background: #28a745; /* hijau */
+    }
+    .siaga {
+      background: #ffc107; /* kuning */
+      color: #000;
+    }
+    .bahaya {
+      background: #dc3545; /* merah */
+    }
+
+    .update-time {
+      text-align: center;
+      font-size: 13px;
+      color: #555;
+      margin-top: 10px;
+      font-style: italic;
+    }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+
+    // 🔹 KONFIGURASI FIREBASE
+    const firebaseConfig = {
+      apiKey: "AIzaSyAaS7W4VgrdiryolORRnRH-9cL3bMUNbMk",
+      databaseURL: "https://pendeteksilongsor-ff60a-default-rtdb.asia-southeast1.firebasedatabase.app"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // 🔹 Fungsi bantu update nilai
+    function updateValue(id, value, suffix = "") {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value + suffix;
+    }
+
+    // 🔹 Format waktu WIB
+    function formatTimeWIB() {
+      const date = new Date();
+      const formatter = new Intl.DateTimeFormat("id-ID", {
+        timeZone: "Asia/Jakarta",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      return formatter.format(date) + " WIB";
+    }
+
+    function updateLastTime() {
+      const el = document.getElementById("lastUpdate");
+      if (el) el.textContent = formatTimeWIB();
+    }
+
+    // 🔹 Fungsi update tampilan status
+    function updateStatusButton(status) {
+      const btn = document.getElementById("statusButton");
+      let className = "normal";
+
+      if (status === "Siaga") className = "siaga";
+      else if (status === "Bahaya") className = "bahaya";
+
+      btn.textContent = `Status: ${status}`;
+      btn.className = className;
+    }
+
+    // 🔹 Baca semua data dalam node "longsor"
+    const longsorRef = ref(db, "longsor");
+
+    onValue(longsorRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        updateValue("kelembapan", data.kelembapan, " %");
+        updateValue("adc", data.ADC, " ");
+        updateValue("kemiringan", data.kemiringan, " °");
+        updateValue("tegangan", data.tegangan, " V");
+        updateValue("arus", data.arus, " A");
+        updateStatusButton(data.status || "Normal");
+        updateLastTime();
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <h1>Dashboard Pendeteksi Tanah Longsor</h1>
+
+  <div class="card">
+    <div class="title">Kondisi Lereng</div>
+    <div class="data">Kelembapan Tanah: <span id="kelembapan">--</span></div>
+    <div class="data">Nilai ADC: <span id="adc">--</span></div>
+    <div class="data">Kemiringan Lereng: <span id="kemiringan">--</span></div>
+    <div class="data">Tegangan: <span id="tegangan">--</span></div>
+    <div class="data">Arus: <span id="arus">--</span></div>
+
+    <div class="status">
+      <button id="statusButton" class="normal">Status: Normal</button>
+    </div>
+
+    <div class="update-time">
+      Terakhir diperbarui: <span id="lastUpdate">--</span>
+    </div>
+  </div>
+
+</body>
+</html>
