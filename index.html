@@ -85,7 +85,7 @@
     // 🔹 KONFIGURASI FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyCIzLEzNm23HOmcA-H-XU7Mml84OJ9p9DY",
-      databaseURL: "https://deteksi-tanah-longsor-9ecdb-default-rtdb.asia-southeast1.firebasedatabase.app"
+      databaseURL: "https://deteksi-tanah-longsor-9ecdb-default-rtdb.asia-southeast1.firebasedatabase.app/"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -139,7 +139,7 @@
         updateValue("adc", data.ADC, " ");
         updateValue("kemiringan", data.kemiringan, " °");
         updateValue("tegangan", data.tegangan, " V");
-        updateValue("arus", data.arus, " A");
+        updateValue("arus", data.arus, " mA");
         updateStatusButton(data.status || "Normal");
         updateLastTime();
       }
@@ -169,6 +169,7 @@
 
 </body>
 </html>
+
 
 
 
